@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/AdriaanConijn/bitcoind-exporter/config"
+	"git.aads.cloud/aad/bitcoind-exporter/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 )

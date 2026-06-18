@@ -1,4 +1,4 @@
-module github.com/AdriaanConijn/bitcoind-exporter
+module git.aads.cloud/aad/bitcoind-exporter
 
 go 1.25.0
 
