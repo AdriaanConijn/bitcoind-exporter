@@ -3,8 +3,9 @@ package zmq
 import (
 	"context"
 
-	"github.com/Primexz/bitcoind-exporter/config"
-	prometheus "github.com/Primexz/bitcoind-exporter/prometheus/metrics"
+	"github.com/AdriaanConijn/bitcoind-exporter/config"
+	otelmetrics "github.com/AdriaanConijn/bitcoind-exporter/otel/metrics"
+	prometheus "github.com/AdriaanConijn/bitcoind-exporter/prometheus/metrics"
 	"github.com/go-zeromq/zmq4"
 	"github.com/sirupsen/logrus"
 )
@@ -47,6 +48,11 @@ func Start() {
 		transaction := string(msg.Frames[1])
 		log.WithField("transaction", transaction).Debug("Received transaction")
 
-		prometheus.TransactionsPerSecond.Inc()
+		if config.C.PrometheusEnabled {
+			prometheus.TransactionsPerSecond.Inc()
+		}
+		if config.C.OtelEnabled {
+			otelmetrics.ZmqTransactions.Add(context.Background(), 1)
+		}
 	}
 }

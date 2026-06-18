@@ -4,12 +4,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/Primexz/bitcoind-exporter/config"
-	prometheus "github.com/Primexz/bitcoind-exporter/prometheus/metrics"
+	"github.com/AdriaanConijn/bitcoind-exporter/config"
+	otelmetrics "github.com/AdriaanConijn/bitcoind-exporter/otel/metrics"
+	prometheus "github.com/AdriaanConijn/bitcoind-exporter/prometheus/metrics"
+	"github.com/AdriaanConijn/bitcoind-exporter/util"
 	goprom "github.com/prometheus/client_golang/prometheus"
-
-	"github.com/Primexz/bitcoind-exporter/util"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	otelapi "go.opentelemetry.io/otel/metric"
 )
 
 var log = logrus.WithFields(logrus.Fields{
@@ -35,6 +37,7 @@ func NewRunner() *Runner {
 }
 
 func (r *Runner) run() {
+	ctx := context.Background()
 	start := time.Now()
 
 	blockChainInfo := r.getBlockchainInfo()
@@ -98,8 +101,51 @@ func (r *Runner) run() {
 	prometheus.MiningHashrate.With(goprom.Labels{"blocks": "1"}).Set(hashRate1)
 	prometheus.MiningHashrate.With(goprom.Labels{"blocks": "120"}).Set(hasthRate120)
 
+	scrapeMs := float64(time.Since(start).Milliseconds())
+
 	//Internal
-	prometheus.ScrapeTime.Set(float64(time.Since(start).Milliseconds()))
+	prometheus.ScrapeTime.Set(scrapeMs)
+
+	if config.C.OtelEnabled {
+		blocksAttr := func(v string) otelapi.MeasurementOption {
+			return otelapi.WithAttributes(attribute.String("blocks", v))
+		}
+
+		otelmetrics.BlockchainBlocks.Record(ctx, float64(blockChainInfo.Blocks))
+		otelmetrics.BlockchainHeaders.Record(ctx, float64(blockChainInfo.Headers))
+		otelmetrics.BlockchainVerificationProgress.Record(ctx, blockChainInfo.VerificationProgress)
+		otelmetrics.BlockchainSizeOnDisk.Record(ctx, float64(blockChainInfo.SizeOnDisk))
+
+		otelmetrics.MempoolUsage.Record(ctx, float64(memPoolInfo.Usage))
+		otelmetrics.MempoolMax.Record(ctx, float64(memPoolInfo.MaxMempool))
+		otelmetrics.MempoolTransactionCount.Record(ctx, float64(memPoolInfo.Size))
+
+		otelmetrics.MemoryUsed.Record(ctx, float64(memoryInfo.Locked.Used))
+		otelmetrics.MemoryFree.Record(ctx, float64(memoryInfo.Locked.Free))
+		otelmetrics.MemoryTotal.Record(ctx, float64(memoryInfo.Locked.Total))
+		otelmetrics.MemoryLocked.Record(ctx, float64(memoryInfo.Locked.Locked))
+		otelmetrics.ChunksUsed.Record(ctx, float64(memoryInfo.Locked.ChunksUsed))
+		otelmetrics.ChunksFree.Record(ctx, float64(memoryInfo.Locked.ChunksFree))
+
+		otelmetrics.TxIndexSynced.Record(ctx, float64(util.BoolToFloat64(indexInfo.TxIndex.Synced)))
+		otelmetrics.TxIndexBestHeight.Record(ctx, float64(indexInfo.TxIndex.BestBlockHeight))
+
+		otelmetrics.TotalConnections.Record(ctx, float64(networkInfo.TotalConnections))
+		otelmetrics.ConnectionsIn.Record(ctx, float64(networkInfo.ConnectionsIn))
+		otelmetrics.ConnectionsOut.Record(ctx, float64(networkInfo.TotalConnections-networkInfo.ConnectionsIn))
+		otelmetrics.TotalBytesRecv.Record(ctx, float64(netTotals.TotalBytesRecv))
+		otelmetrics.TotalBytesSent.Record(ctx, float64(netTotals.TotalBytesSent))
+
+		otelmetrics.SmartFee.Record(ctx, util.ConvertBTCkBToSatVb(feeRate2.Feerate), blocksAttr("2"))
+		otelmetrics.SmartFee.Record(ctx, util.ConvertBTCkBToSatVb(feeRate5.Feerate), blocksAttr("5"))
+		otelmetrics.SmartFee.Record(ctx, util.ConvertBTCkBToSatVb(feeRate20.Feerate), blocksAttr("20"))
+
+		otelmetrics.MiningHashrate.Record(ctx, hasRateLatest, blocksAttr("-1"))
+		otelmetrics.MiningHashrate.Record(ctx, hashRate1, blocksAttr("1"))
+		otelmetrics.MiningHashrate.Record(ctx, hasthRate120, blocksAttr("120"))
+
+		otelmetrics.ScrapeTime.Record(ctx, scrapeMs)
+	}
 }
 
 func (r *Runner) getBlockchainInfo() *BlockchainInfo {
