@@ -1,5 +1,5 @@
 project_name: bitcoind-metrics-exporter
-
+force_token: gitea
 gitea_urls:
   api: https://git.aads.cloud/api/v1/
   download: https://git.aads.cloud/
