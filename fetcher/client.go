@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"git.aads.cloud/aad/bitcoind-exporter/config"
-	"git.aads.cloud/aad/bitcoind-exporter/util"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/config"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/util"
 	"github.com/ybbus/jsonrpc/v3"
 )
 

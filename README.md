@@ -34,6 +34,20 @@ Please note that either `RPC_USER` and `RPC_PASS` or `RPC_COOKIE_FILE` must be s
 
 The official Grafana dashboard can be found here: https://grafana.com/grafana/dashboards/21351
 
+## Debian
+
+### Install as systemd service
+```bash
+curl -fsSL https://git.aads.cloud/api/packages/aad/debian/repository.key | sudo gpg --dearmor -o /usr/share/keyrings/bitcoind-metrics-exporter.gpg
+echo "deb [signed-by=/usr/share/keyrings/bitcoind-metrics-exporter.gpg] https://git.aads.cloud/api/packages/aad/debian stable main" | sudo tee /etc/apt/sources.list.d/bitcoind-metrics-exporter.list
+sudo apt update
+sudo apt install bitcoind-metrics-exporter
+sudo $EDITOR /etc/bitcoind-metrics-exporter/bitcoind-metrics-exporter.env
+sudo systemctl start bitcoind-metrics-exporter
+```
+
+Alternatively, you can download the latest release from the [releases page](https://git.aads.cloud/aad/bitcoind-metrics-exporter/packages), or run with Docker.
+
 ## 🐳 Run with Docker
 
 ### Prometheus
@@ -49,7 +63,7 @@ docker run -d --name bitcoind_exporter \
   -e PROMETHEUS_ENABLED=true \
   -v /path/to/cookie/.cookie:/.cookie:ro \
   -p 3000:3000 \
-   ghcr.io/AdriaanConijn/bitcoind-exporter:latest
+   git.aads.cloud/aad/bitcoind-metrics-exporter:latest
 ```
 
 #### 🚀 Docker-Compose
@@ -62,7 +76,7 @@ vim docker-compose.yml
 version: "3.8"
 services:
   bitcoind_exporter:
-    image: ghcr.io/AdriaanConijn/bitcoind-exporter:latest
+    image: git.aads.cloud/aad/bitcoind-metrics-exporter:latest
     ports:
       - "3000:3000"    
     environment:
@@ -94,7 +108,7 @@ docker run -d --name bitcoind_exporter \
   -e OTEL_ENABLED=true \
   -e OTEL_ENDPOINT= http://localhost:4123 \
   -v /path/to/cookie/.cookie:/.cookie:ro \
-   ghcr.io/AdriaanConijn/bitcoind-exporter:latest
+   git.aads.cloud/aad/bitcoind-metrics-exporter:latest
 ```
 
 #### 🚀 Docker-Compose
@@ -107,7 +121,7 @@ vim docker-compose.yml
 version: "3.8"
 services:
   bitcoind_exporter:
-    image: ghcr.io/AdriaanConijn/bitcoind-exporter:latest
+    image: git.aads.cloud/aad/bitcoind-metrics-exporter:latest
     environment:
       - OTEL_ENABLED=true
       - OTEL_ENDPOINT= http://localhost:4123

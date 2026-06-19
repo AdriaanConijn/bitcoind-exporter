@@ -3,9 +3,9 @@ package zmq
 import (
 	"context"
 
-	"git.aads.cloud/aad/bitcoind-exporter/config"
-	otelmetrics "git.aads.cloud/aad/bitcoind-exporter/otel/metrics"
-	prometheus "git.aads.cloud/aad/bitcoind-exporter/prometheus/metrics"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/config"
+	otelmetrics "git.aads.cloud/aad/bitcoind-metrics-exporter/otel/metrics"
+	prometheus "git.aads.cloud/aad/bitcoind-metrics-exporter/prometheus/metrics"
 	"github.com/go-zeromq/zmq4"
 	"github.com/sirupsen/logrus"
 )

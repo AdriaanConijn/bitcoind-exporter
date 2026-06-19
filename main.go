@@ -3,11 +3,11 @@ package main
 import (
 	"runtime"
 
-	"git.aads.cloud/aad/bitcoind-exporter/config"
-	"git.aads.cloud/aad/bitcoind-exporter/fetcher"
-	otelexporter "git.aads.cloud/aad/bitcoind-exporter/otel"
-	"git.aads.cloud/aad/bitcoind-exporter/prometheus"
-	"git.aads.cloud/aad/bitcoind-exporter/zmq"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/config"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/fetcher"
+	otelexporter "git.aads.cloud/aad/bitcoind-metrics-exporter/otel"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/prometheus"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/zmq"
 	log "github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )

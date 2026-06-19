@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"git.aads.cloud/aad/bitcoind-exporter/config"
-	otelmetrics "git.aads.cloud/aad/bitcoind-exporter/otel/metrics"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/config"
+	otelmetrics "git.aads.cloud/aad/bitcoind-metrics-exporter/otel/metrics"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"

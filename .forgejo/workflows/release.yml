@@ -39,3 +39,12 @@ jobs:
           goreleaser release --clean
         env:
           GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+
+      - name: Publish Debian packages
+        run: |
+          for f in dist/*.deb; do
+            curl -sS --fail \
+              --user "${{ github.repository_owner }}:${{ secrets.GITEA_TOKEN }}" \
+              --upload-file "$f" \
+              "https://git.aads.cloud/api/packages/aad/debian/pool/stable/main/upload"
+          done

@@ -1,4 +1,4 @@
-module git.aads.cloud/aad/bitcoind-exporter
+module git.aads.cloud/aad/bitcoind-metrics-exporter
 
 go 1.25.0
 
