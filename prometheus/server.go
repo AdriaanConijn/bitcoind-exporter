@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Primexz/bitcoind-exporter/config"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 )
@@ -16,7 +16,7 @@ var (
 )
 
 func Start() {
-	port := strconv.Itoa(config.C.MetricPort)
+	port := strconv.Itoa(config.C.PromMetricPort)
 
 	log.WithField("port", port).Info("Starting Prometheus metrics server.")
 

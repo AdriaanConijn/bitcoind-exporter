@@ -3,10 +3,11 @@ package main
 import (
 	"runtime"
 
-	"github.com/Primexz/bitcoind-exporter/config"
-	"github.com/Primexz/bitcoind-exporter/fetcher"
-	"github.com/Primexz/bitcoind-exporter/prometheus"
-	"github.com/Primexz/bitcoind-exporter/zmq"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/config"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/fetcher"
+	otelexporter "git.aads.cloud/aad/bitcoind-metrics-exporter/otel"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/prometheus"
+	"git.aads.cloud/aad/bitcoind-metrics-exporter/zmq"
 	log "github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
@@ -36,7 +37,14 @@ func main() {
 		"arch":    runtime.GOARCH,
 	}).Infof("Bitcoind Exporter ₿ %s", version)
 
-	go prometheus.Start()
+	if config.C.OtelEnabled {
+		otelexporter.Start()
+	}
+
+	if config.C.PrometheusEnabled {
+		go prometheus.Start()
+	}
+
 	go zmq.Start()
 
 	fetcher.Start()
