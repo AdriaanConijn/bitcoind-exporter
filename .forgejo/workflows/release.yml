@@ -34,8 +34,8 @@ jobs:
       - name: Publish Debian packages
         run: |
           for f in dist/*.deb; do
-            curl -sS --fail \
-              --user "${{ forgejo.actor }}:${{ secrets.FORGEJO_TOKEN }}" \
+            curl -sS --fail-with-body -w '\nHTTP %{http_code}\n' \
+              -H "Authorization: token ${{ secrets.FORGEJO_TOKEN }}" \
               --upload-file "$f" \
               "https://git.aads.cloud/api/packages/aad/debian/pool/stable/main/upload"
           done
