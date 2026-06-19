@@ -35,7 +35,7 @@ jobs:
         run: |
           for f in dist/*.deb; do
             curl -sS --fail-with-body -w '\nHTTP %{http_code}\n' \
-              -H "Authorization: token ${{ forgejo.token }}" \
+              -H "Authorization: token ${{ secrets.PACKAGE_TOKEN }}" \
               --upload-file "$f" \
               "https://git.aads.cloud/api/packages/aad/debian/pool/stable/main/upload"
           done
