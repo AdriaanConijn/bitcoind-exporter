@@ -9,30 +9,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
-        id: go
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Docker Login
-        uses: docker/login-action@v4
-        with:
-          registry: git.aads.cloud
-          username: ${{ forgejo.repository_owner }}
-          password: ${{ secrets.FORGEJO_TOKEN }}
-
       - name: Run GoReleaser
         uses: https://git.aads.cloud/mirrors/goreleaser-action@v7
         with:
@@ -41,7 +28,6 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
-
       - name: Publish Debian packages
         run: |
           for f in dist/*.deb; do
@@ -49,4 +35,55 @@ jobs:
               --user "${{ github.repository_owner }}:${{ secrets.FORGEJO_TOKEN }}" \
               --upload-file "$f" \
               "https://git.aads.cloud/api/packages/aad/debian/pool/stable/main/upload"
+          done
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  image:
+    needs: release
+    runs-on: buildah
+    env:
+      STORAGE_DRIVER: vfs
+      BUILDAH_ISOLATION: chroot
+      BUILDAH_FORMAT: docker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Registry login
+        run: |
+          buildah login -u "${{ forgejo.repository_owner }}" \
+            -p "${{ secrets.FORGEJO_TOKEN }}" git.aads.cloud
+      - name: Build and push multi-arch image
+        run: |
+          IMG=git.aads.cloud/aad/bitcoind-metrics-exporter
+          VERSION="${FORGEJO_REF_NAME#v}"
+
+          AMD64_BIN=$(find dist -type f -name bitcoind-exporter -path '*linux_amd64*' | head -n1)
+          ARM64_BIN=$(find dist -type f -name bitcoind-exporter -path '*linux_arm64*' | head -n1)
+          cp "$AMD64_BIN" ./bitcoind-exporter.amd64
+          cp "$ARM64_BIN" ./bitcoind-exporter.arm64
+
+          buildah build --arch amd64 \
+            --build-arg TARGET_BINARY=bitcoind-exporter.amd64 \
+            -t "$IMG:$VERSION-amd64" .
+          buildah build --arch arm64 --variant v8 \
+            --build-arg TARGET_BINARY=bitcoind-exporter.arm64 \
+            -t "$IMG:$VERSION-arm64v8" .
+
+          buildah push "$IMG:$VERSION-amd64"
+          buildah push "$IMG:$VERSION-arm64v8"
+
+          for TAG in "$VERSION" latest; do
+            buildah manifest create "$IMG:$TAG"
+            buildah manifest add "$IMG:$TAG" "docker://$IMG:$VERSION-amd64"
+            buildah manifest add "$IMG:$TAG" "docker://$IMG:$VERSION-arm64v8"
+            buildah manifest push --all "$IMG:$TAG" "docker://$IMG:$TAG"
           done
