@@ -26,7 +26,7 @@ This tool is configured via environment variables. Some environment variables ar
 | `LOG_LEVEL` | The log level for the service | ❌ | `info` |
 | `OTEL_ENABLED` | Whether OpenTelemetry is enabled | ❌ | `false` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | The OTLP endpoint for the OpenTelemetry collector | ❌ | `otel-collector:4317` |
-| `OTEL_SERVICE_NAME` | The service name for the OpenTelemetry collector | ❌ | `bitcoind-exporter` |
+| `OTEL_SERVICE_NAME` | The service name for the OpenTelemetry collector | ❌ | `bitcoind-metrics-exporter` |
 
 Please note that either `RPC_USER` and `RPC_PASS` or `RPC_COOKIE_FILE` must be set.
 

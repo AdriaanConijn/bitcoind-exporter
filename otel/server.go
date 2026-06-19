@@ -36,7 +36,7 @@ func Start() {
 
 	otel.SetMeterProvider(provider)
 
-	meter := provider.Meter("bitcoind-exporter")
+	meter := provider.Meter("bitcoind-metrics-exporter")
 	if err := otelmetrics.Init(meter); err != nil {
 		log.WithError(err).Fatal("Failed to initialize OTEL metrics")
 	}
