@@ -30,12 +30,12 @@ jobs:
           version: "~> v2"
           args: release --clean
         env:
-          GITEA_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+          GITEA_TOKEN: ${{ forgejo.token }}
       - name: Publish Debian packages
         run: |
           for f in dist/*.deb; do
             curl -sS --fail-with-body -w '\nHTTP %{http_code}\n' \
-              -H "Authorization: token ${{ secrets.FORGEJO_TOKEN }}" \
+              -H "Authorization: token ${{ forgejo.token }}" \
               --upload-file "$f" \
               "https://git.aads.cloud/api/packages/aad/debian/pool/stable/main/upload"
           done
@@ -63,7 +63,7 @@ jobs:
       - name: Registry login
         run: |
           buildah login -u "${{ forgejo.repository_owner }}" \
-            -p "${{ secrets.FORGEJO_TOKEN }}" git.aads.cloud
+            -p "${{ forgejo.token }}" git.aads.cloud
       - name: Build and push multi-arch image
         run: |
           IMG=git.aads.cloud/aad/bitcoind-metrics-exporter
