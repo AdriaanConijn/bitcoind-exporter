@@ -1,0 +1,15 @@
+[Unit]
+Description=bitcoind-exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bitcoind-exporter
+EnvironmentFile=-/etc/bitcoind-exporter/bitcoind-exporter.env
+ExecStart=/usr/bin/bitcoind-exporter
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
