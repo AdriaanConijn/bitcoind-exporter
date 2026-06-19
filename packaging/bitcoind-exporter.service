@@ -1,13 +1,13 @@
 [Unit]
-Description=bitcoind-exporter
+Description=bitcoind-metrics-exporter
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-User=bitcoind-exporter
-EnvironmentFile=-/etc/bitcoind-exporter/bitcoind-exporter.env
-ExecStart=/usr/bin/bitcoind-exporter
+User=bitcoind-metrics-exporter
+EnvironmentFile=-/etc/bitcoind-metrics-exporter/bitcoind-metrics-exporter.env
+ExecStart=/usr/bin/bitcoind-metrics-exporter
 Restart=on-failure
 RestartSec=5
 

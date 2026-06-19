@@ -1,4 +1,4 @@
-project_name: bitcoind-exporter
+project_name: bitcoind-metrics-exporter
 
 gitea_urls:
   api: https://git.aads.cloud/api/v1/
@@ -7,7 +7,7 @@ gitea_urls:
 builds:
   - env:
       - CGO_ENABLED=0
-    binary: bitcoind-exporter
+    binary: bitcoind-metrics-exporter
     goos:
       - linux
     goarch:
@@ -15,7 +15,7 @@ builds:
       - arm64
 
 nfpms:
-  - package_name: bitcoind-exporter
+  - package_name: bitcoind-metrics-exporter
     file_name_template: "{{ .ConventionalFileName }}"
     vendor: aad
     homepage: https://git.aads.cloud/aad/bitcoind-metrics-exporter
@@ -26,12 +26,17 @@ nfpms:
       - deb
     bindir: /usr/bin
     contents:
-      - src: packaging/bitcoind-exporter.service
-        dst: /lib/systemd/system/bitcoind-exporter.service
-      - src: packaging/bitcoind-exporter.env
-        dst: /etc/bitcoind-exporter/bitcoind-exporter.env
+      - src: packaging/bitcoind-metrics-exporter.service
+        dst: /lib/systemd/system/bitcoind-metrics-exporter.service
+      - src: packaging/bitcoind-metrics-exporter.env
+        dst: /etc/bitcoind-metrics-exporter/bitcoind-metrics-exporter.env
         type: config|noreplace
     scripts:
       postinstall: packaging/postinstall.sh
       preremove: packaging/preremove.sh
       postremove: packaging/postremove.sh
+
+release:
+  gitea:
+    owner: aad
+    name: bitcoind-metrics-exporter
