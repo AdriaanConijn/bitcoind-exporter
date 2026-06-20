@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   release:
-    runs-on: buildah
+    runs-on: buildah-full
     env:
       STORAGE_DRIVER: vfs
       BUILDAH_ISOLATION: chroot
