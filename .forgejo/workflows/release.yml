@@ -46,12 +46,12 @@ jobs:
         run: |
           IMG=git.aads.cloud/aad/bitcoind-metrics-exporter
           VERSION="${GITHUB_REF_NAME#v}"
-          AMD64_BIN=$(find dist -type f -name bitcoind-exporter -path '*linux_amd64*' | head -n1)
-          ARM64_BIN=$(find dist -type f -name bitcoind-exporter -path '*linux_arm64*' | head -n1)
-          cp "$AMD64_BIN" ./bitcoind-exporter.amd64
-          cp "$ARM64_BIN" ./bitcoind-exporter.arm64
-          buildah build --arch amd64 --build-arg TARGET_BINARY=bitcoind-exporter.amd64 -t "$IMG:$VERSION-amd64" .
-          buildah build --arch arm64 --variant v8 --build-arg TARGET_BINARY=bitcoind-exporter.arm64 -t "$IMG:$VERSION-arm64v8" .
+          AMD64_BIN=$(find dist -type f -name bitcoind-metrics-exporter -path '*linux_amd64*' | head -n1)
+          ARM64_BIN=$(find dist -type f -name bitcoind-metrics-exporter -path '*linux_arm64*' | head -n1)
+          cp "$AMD64_BIN" ./bitcoind-metrics-exporter.amd64
+          cp "$ARM64_BIN" ./bitcoind-metrics-exporter.arm64
+          buildah build --arch amd64 --build-arg TARGET_BINARY=bitcoind-metrics-exporter.amd64 -t "$IMG:$VERSION-amd64" .
+          buildah build --arch arm64 --variant v8 --build-arg TARGET_BINARY=bitcoind-metrics-exporter.arm64 -t "$IMG:$VERSION-arm64v8" .
           buildah push "$IMG:$VERSION-amd64"
           buildah push "$IMG:$VERSION-arm64v8"
           for TAG in "$VERSION" latest; do
