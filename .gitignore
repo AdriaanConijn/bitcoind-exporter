@@ -1,2 +1,4 @@
-bitcoind-metrics-exporter
+bitcoind-metrics-exporter.amd64
+bitcoind-metrics-exporter.arm64
 bitcoind-exporter
+dist
