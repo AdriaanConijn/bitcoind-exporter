@@ -20,8 +20,6 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Install Go
-        run: dnf install -y go
       - name: Run GoReleaser
         uses: https://git.aads.cloud/mirrors/goreleaser-action@v7
         with:
