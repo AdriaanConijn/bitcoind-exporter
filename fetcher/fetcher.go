@@ -45,6 +45,7 @@ func (r *Runner) run() {
 	memoryInfo := r.getMemoryInfo()
 	indexInfo := r.getIndexInfo()
 	networkInfo := r.getNetworkInfo()
+	totalConnections := r.getConnectionCount()
 
 	feeRate2 := r.getSmartFee(2)
 	feeRate5 := r.getSmartFee(5)
@@ -85,7 +86,7 @@ func (r *Runner) run() {
 	prometheus.TxIndexBestHeight.Set(float64(indexInfo.TxIndex.BestBlockHeight))
 
 	//Network
-	prometheus.TotalConnections.Set(float64(networkInfo.TotalConnections))
+	prometheus.TotalConnections.Set(float64(totalConnections))
 	prometheus.ConnectionsIn.Set(float64(networkInfo.ConnectionsIn))
 	prometheus.ConnectionsOut.Set(float64(networkInfo.TotalConnections - networkInfo.ConnectionsIn))
 	prometheus.TotalBytesRecv.Set(float64(netTotals.TotalBytesRecv))
@@ -130,7 +131,7 @@ func (r *Runner) run() {
 		otelmetrics.TxIndexSynced.Record(ctx, float64(util.BoolToFloat64(indexInfo.TxIndex.Synced)))
 		otelmetrics.TxIndexBestHeight.Record(ctx, float64(indexInfo.TxIndex.BestBlockHeight))
 
-		otelmetrics.TotalConnections.Record(ctx, float64(networkInfo.TotalConnections))
+		otelmetrics.TotalConnections.Record(ctx, float64(totalConnections))
 		otelmetrics.ConnectionsIn.Record(ctx, float64(networkInfo.ConnectionsIn))
 		otelmetrics.ConnectionsOut.Record(ctx, float64(networkInfo.TotalConnections-networkInfo.ConnectionsIn))
 		otelmetrics.TotalBytesRecv.Record(ctx, float64(netTotals.TotalBytesRecv))
@@ -231,6 +232,17 @@ func (r *Runner) getNetTotals() *NetTotals {
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil
+	}
+
+	return info
+}
+
+func (r *Runner) getConnectionCount() int {
+	var info int
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "getconnectioncount")
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return 0
 	}
 
 	return info
