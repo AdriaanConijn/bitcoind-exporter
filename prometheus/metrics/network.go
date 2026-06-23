@@ -7,7 +7,7 @@ import (
 
 var (
 	TotalConnections = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "bitcoind_total_connections",
+		Name: "bitcoind_connections_total",
 		Help: "The number of blocks in the blockchain",
 	})
 

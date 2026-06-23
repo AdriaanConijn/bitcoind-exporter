@@ -11,7 +11,7 @@ var (
 )
 
 func initNetwork(meter metric.Meter) (err error) {
-	if TotalConnections, err = meter.Float64Gauge("bitcoind_total_connections",
+	if TotalConnections, err = meter.Float64Gauge("bitcoind_connections_total",
 		metric.WithDescription("Total number of peer connections"),
 	); err != nil {
 		return

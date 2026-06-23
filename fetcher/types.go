@@ -68,19 +68,35 @@ type IndexInfo struct {
 	}
 }
 
+type Network struct {
+	Name                      string `json:"name"`
+	Limited                   bool   `json:"limited"`
+	Reachable                 bool   `json:"reachable"`
+	Proxy                     string `json:"proxy"`
+	ProxyRandomizeCredentials bool   `json:"proxy_randomize_credentials"`
+}
+
+type LocalAddress struct {
+	Address string `json:"address"`
+	Port    int    `json:"port"`
+	Score   int    `json:"score"`
+}
+
 type NetworkInfo struct {
-	Version            int      `json:"version"`
-	Subversion         string   `json:"subversion"`
-	ProtocolVersion    int      `json:"protocolversion"`
-	LocalServices      string   `json:"localservices"`
-	LocalServicesNames []string `json:"localservicesnames"`
-	LocalRelay         bool     `json:"localrelay"`
-	Timeoffset         int      `json:"timeoffset"`
-	TotalConnections   int      `json:"connections"`
-	ConnectionsIn      int      `json:"connections_in"`
-	ConnectionsOut     int      `json:"connections_out"`
-	RelayFee           float64  `json:"relayfee"`
-	IncrementalFee     float64  `json:"incrementalfee"`
+	Version            int            `json:"version"`
+	Subversion         string         `json:"subversion"`
+	ProtocolVersion    int            `json:"protocolversion"`
+	LocalServices      string         `json:"localservices"`
+	LocalServicesNames []string       `json:"localservicesnames"`
+	LocalRelay         bool           `json:"localrelay"`
+	Timeoffset         int            `json:"timeoffset"`
+	TotalConnections   int            `json:"connections"`
+	ConnectionsIn      int            `json:"connections_in"`
+	ConnectionsOut     int            `json:"connections_out"`
+	Networks           []Network      `json:"networks"`
+	RelayFee           float64        `json:"relayfee"`
+	IncrementalFee     float64        `json:"incrementalfee"`
+	LocalAddresses     []LocalAddress `json:"localaddresses"`
 }
 
 type SmartFee struct {
@@ -92,4 +108,8 @@ type NetTotals struct {
 	TotalBytesRecv int `json:"totalbytesrecv"`
 	TotalBytesSent int `json:"totalbytessent"`
 	TimeMillis     int `json:"timemillis"`
+}
+
+type PeerInfo struct {
+	Address string `json:"addr"`
 }
