@@ -8,11 +8,8 @@ fi
 systemctl daemon-reload >/dev/null 2>&1 || true
 systemctl enable bitcoind-metrics-exporter.service >/dev/null 2>&1 || true
 
-# On upgrade the old prerm left the service running (it only stops on real removal),
-# so restart to pick up the new binary. On a fresh install this is a no-op.
 if systemctl is-active --quiet bitcoind-metrics-exporter.service; then
   systemctl restart bitcoind-metrics-exporter.service >/dev/null 2>&1 || true
-fi
-
-echo "bitcoind-metrics-exporter installed. Edit /etc/bitcoind-metrics-exporter/bitcoind-metrics-exporter.env, then run:"
-echo "  systemctl start bitcoind-metrics-exporter"
+else
+    echo "bitcoind-metrics-exporter installed. Edit /etc/bitcoind-metrics-exporter/bitcoind-metrics-exporter.env, then run:"
+    echo "  systemctl start bitcoind-metrics-exporter"
