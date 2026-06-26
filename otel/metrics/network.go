@@ -42,12 +42,12 @@ func initNetwork(meter metric.Meter) (err error) {
 	); err != nil {
 		return
 	}
-	if Ipv4ConnectionsIn, err = meter.Float64Gauge("bitcoind_ipv4_connections",
+	if Ipv4ConnectionsIn, err = meter.Float64Gauge("bitcoind_ipv4_connections_in",
 		metric.WithDescription("Number of IPv4 connections"),
 	); err != nil {
 		return
 	}
-	if Ipv6ConnectionsIn, err = meter.Float64Gauge("bitcoind_ipv6_connections",
+	if Ipv6ConnectionsIn, err = meter.Float64Gauge("bitcoind_ipv6_connections_in",
 		metric.WithDescription("Number of IPv6 connections"),
 	); err != nil {
 		return
