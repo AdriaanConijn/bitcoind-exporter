@@ -18,3 +18,7 @@ jobs:
         uses: https://git.aads.cloud/mirrors/gosec@v2.27.1
         with:
           args: ./...
+      - name: Run ShellCheck
+        uses: https://git.aads.cloud/mirrors/action-shellcheck@master
+        with:
+          scandir: "./packaging"
