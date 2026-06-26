@@ -13,3 +13,4 @@ if systemctl is-active --quiet bitcoind-metrics-exporter.service; then
 else
     echo "bitcoind-metrics-exporter installed. Edit /etc/bitcoind-metrics-exporter/bitcoind-metrics-exporter.env, then run:"
     echo "  systemctl start bitcoind-metrics-exporter"
+fi
