@@ -57,6 +57,9 @@ func (r *Runner) run() {
 
 	netTotals := r.getNetTotals()
 
+	peerInfo := r.getPeerInfo()
+	count_in, count_out := CountNetworkConnections(peerInfo)
+
 	if util.AnyNil(blockChainInfo, memPoolInfo, memoryInfo, indexInfo, networkInfo, feeRate2, feeRate5, feeRate20, hasRateLatest, hashRate1, hasthRate120, netTotals) {
 		log.Error("Failed to fetch data")
 		return
@@ -146,6 +149,13 @@ func (r *Runner) run() {
 		otelmetrics.MiningHashrate.Record(ctx, hasthRate120, blocksAttr("120"))
 
 		otelmetrics.ScrapeTime.Record(ctx, scrapeMs)
+
+		otelmetrics.Ipv4ConnectionsIn.Record(ctx, float64(count_in.ipv4))
+		otelmetrics.Ipv6ConnectionsIn.Record(ctx, float64(count_in.ipv6))
+		otelmetrics.OnionConnectionsIn.Record(ctx, float64(count_in.onion))
+		otelmetrics.Ipv4ConnectionsOut.Record(ctx, float64(count_out.ipv4))
+		otelmetrics.Ipv6ConnectionsOut.Record(ctx, float64(count_out.ipv6))
+		otelmetrics.OnionConnectionsOut.Record(ctx, float64(count_out.onion))
 	}
 }
 
@@ -243,6 +253,17 @@ func (r *Runner) getConnectionCount() int {
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return 0
+	}
+
+	return info
+}
+
+func (r *Runner) getPeerInfo() []Peer {
+	var info []Peer
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "getpeerinfo")
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return nil
 	}
 
 	return info

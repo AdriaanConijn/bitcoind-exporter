@@ -110,6 +110,29 @@ type NetTotals struct {
 	TimeMillis     int `json:"timemillis"`
 }
 
-type PeerInfo struct {
-	Address string `json:"addr"`
+type Peer struct {
+	ID                int              `json:"id"`
+	Addr              string           `json:"addr"`
+	AddrBind          string           `json:"addrbind"`
+	Network           string           `json:"network"`
+	ConnectionType    string           `json:"connection_type"`
+	Inbound           bool             `json:"inbound"`
+	Services          string           `json:"services"`
+	RelayTxes         bool             `json:"relaytxes"`
+	Version           int              `json:"version"`
+	SubVer            string           `json:"subver"`
+	StartingHeight    int64            `json:"startingheight"`
+	SyncedHeaders     int64            `json:"synced_headers"`
+	SyncedBlocks      int64            `json:"synced_blocks"`
+	BytesSent         int64            `json:"bytessent"`
+	BytesRecv         int64            `json:"bytesrecv"`
+	BytesSentPerMsg   map[string]int64 `json:"bytessent_per_msg"`
+	BytesRecvPerMsg   map[string]int64 `json:"bytesrecv_per_msg"`
+	PingTime          float64          `json:"pingtime"`
+	MinPing           float64          `json:"minping"`
+	ConnTime          int64            `json:"conntime"`
+	LastSend          int64            `json:"lastsend"`
+	LastRecv          int64            `json:"lastrecv"`
+	TransportProtocol string           `json:"transport_protocol_type"`
+	SessionID         string           `json:"session_id"`
 }
