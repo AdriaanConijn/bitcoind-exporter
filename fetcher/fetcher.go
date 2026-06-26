@@ -6,9 +6,7 @@ import (
 
 	"git.aads.cloud/aad/bitcoind-metrics-exporter/config"
 	otelmetrics "git.aads.cloud/aad/bitcoind-metrics-exporter/otel/metrics"
-	prometheus "git.aads.cloud/aad/bitcoind-metrics-exporter/prometheus/metrics"
 	"git.aads.cloud/aad/bitcoind-metrics-exporter/util"
-	goprom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
 	otelapi "go.opentelemetry.io/otel/metric"
@@ -64,51 +62,7 @@ func (r *Runner) run() {
 		log.Error("Failed to fetch data")
 		return
 	}
-
-	//Blockchain
-	prometheus.BlockchainBlocks.Set(float64(blockChainInfo.Blocks))
-	prometheus.BlockchainHeaders.Set(float64(blockChainInfo.Headers))
-	prometheus.BlockchainVerificationProgress.Set(blockChainInfo.VerificationProgress)
-	prometheus.BlockchainSizeOnDisk.Set(float64(blockChainInfo.SizeOnDisk))
-
-	//Mempool
-	prometheus.MempoolUsage.Set(float64(memPoolInfo.Usage))
-	prometheus.MempoolMax.Set(float64(memPoolInfo.MaxMempool))
-	prometheus.MempoolTransactionCount.Set(float64(memPoolInfo.Size))
-
-	//Memory
-	prometheus.MemoryUsed.Set(float64(memoryInfo.Locked.Used))
-	prometheus.MemoryFree.Set(float64(memoryInfo.Locked.Free))
-	prometheus.MemoryTotal.Set(float64(memoryInfo.Locked.Total))
-	prometheus.MemoryLocked.Set(float64(memoryInfo.Locked.Locked))
-	prometheus.ChunksUsed.Set(float64(memoryInfo.Locked.ChunksUsed))
-	prometheus.ChunksFree.Set(float64(memoryInfo.Locked.ChunksFree))
-
-	//TxIndex
-	prometheus.TxIndexSynced.Set(float64(util.BoolToFloat64(indexInfo.TxIndex.Synced)))
-	prometheus.TxIndexBestHeight.Set(float64(indexInfo.TxIndex.BestBlockHeight))
-
-	//Network
-	prometheus.TotalConnections.Set(float64(totalConnections))
-	prometheus.ConnectionsIn.Set(float64(networkInfo.ConnectionsIn))
-	prometheus.ConnectionsOut.Set(float64(networkInfo.TotalConnections - networkInfo.ConnectionsIn))
-	prometheus.TotalBytesRecv.Set(float64(netTotals.TotalBytesRecv))
-	prometheus.TotalBytesSent.Set(float64(netTotals.TotalBytesSent))
-
-	//SmartFee
-	prometheus.SmartFee.With(goprom.Labels{"blocks": "2"}).Set(util.ConvertBTCkBToSatVb(feeRate2.Feerate))
-	prometheus.SmartFee.With(goprom.Labels{"blocks": "5"}).Set(util.ConvertBTCkBToSatVb(feeRate5.Feerate))
-	prometheus.SmartFee.With(goprom.Labels{"blocks": "20"}).Set(util.ConvertBTCkBToSatVb(feeRate20.Feerate))
-
-	//Mining
-	prometheus.MiningHashrate.With(goprom.Labels{"blocks": "-1"}).Set(hasRateLatest)
-	prometheus.MiningHashrate.With(goprom.Labels{"blocks": "1"}).Set(hashRate1)
-	prometheus.MiningHashrate.With(goprom.Labels{"blocks": "120"}).Set(hasthRate120)
-
 	scrapeMs := float64(time.Since(start).Milliseconds())
-
-	//Internal
-	prometheus.ScrapeTime.Set(scrapeMs)
 
 	if config.C.OtelEnabled {
 		blocksAttr := func(v string) otelapi.MeasurementOption {

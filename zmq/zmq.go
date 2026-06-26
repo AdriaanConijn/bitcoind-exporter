@@ -5,7 +5,6 @@ import (
 
 	"git.aads.cloud/aad/bitcoind-metrics-exporter/config"
 	otelmetrics "git.aads.cloud/aad/bitcoind-metrics-exporter/otel/metrics"
-	prometheus "git.aads.cloud/aad/bitcoind-metrics-exporter/prometheus/metrics"
 	"github.com/go-zeromq/zmq4"
 	"github.com/sirupsen/logrus"
 )
@@ -48,11 +47,6 @@ func Start() {
 		transaction := string(msg.Frames[1])
 		log.WithField("transaction", transaction).Debug("Received transaction")
 
-		if config.C.PrometheusEnabled {
-			prometheus.TransactionsPerSecond.Inc()
-		}
-		if config.C.OtelEnabled {
-			otelmetrics.ZmqTransactions.Add(context.Background(), 1)
-		}
+		otelmetrics.ZmqTransactions.Add(context.Background(), 1)
 	}
 }

@@ -6,7 +6,6 @@ import (
 	"git.aads.cloud/aad/bitcoind-metrics-exporter/config"
 	"git.aads.cloud/aad/bitcoind-metrics-exporter/fetcher"
 	otelexporter "git.aads.cloud/aad/bitcoind-metrics-exporter/otel"
-	"git.aads.cloud/aad/bitcoind-metrics-exporter/prometheus"
 	"git.aads.cloud/aad/bitcoind-metrics-exporter/zmq"
 	log "github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
@@ -37,13 +36,7 @@ func main() {
 		"arch":    runtime.GOARCH,
 	}).Infof("Bitcoind Exporter ₿ %s", version)
 
-	if config.C.OtelEnabled {
-		otelexporter.Start()
-	}
-
-	if config.C.PrometheusEnabled {
-		go prometheus.Start()
-	}
+	otelexporter.Start()
 
 	go zmq.Start()
 
