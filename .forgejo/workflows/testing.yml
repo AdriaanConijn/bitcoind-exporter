@@ -1,0 +1,65 @@
+name: Nightly
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  nightly:
+    runs-on: buildah-full
+    env:
+      STORAGE_DRIVER: vfs
+      BUILDAH_ISOLATION: chroot
+      BUILDAH_FORMAT: docker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Reset nightly tag and release
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+          API: https://git.aads.cloud/api/v1/repos/aad/bitcoind-metrics-exporter
+        run: |
+          ID=$(curl -sf -H "Authorization: token $TOKEN" "$API/releases/tags/nightly" | jq -r '.id // empty')
+          [ -n "$ID" ] && curl -sf -X DELETE -H "Authorization: token $TOKEN" "$API/releases/$ID"
+          git tag -f nightly && git push origin nightly --force
+      - name: Run GoReleaser
+        uses: https://git.aads.cloud/mirrors/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean --skip=validate
+        env:
+          GITEA_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+      - name: Publish Debian nightly packages
+        run: |
+          for f in dist/*.deb; do
+            curl -sS --fail-with-body -w '\nHTTP %{http_code}\n' \
+              -H "Authorization: token ${{ secrets.PACKAGE_TOKEN }}" \
+              --upload-file "$f" \
+              "https://git.aads.cloud/api/packages/aad/debian/pool/nightly/main/upload"
+          done
+      - name: Registry login
+        run: |
+          buildah login -u "${{ github.repository_owner }}" \
+            -p "${{ secrets.PACKAGE_TOKEN }}" git.aads.cloud
+      - name: Build and push multi-arch nightly image
+        run: |
+          IMG=git.aads.cloud/aad/bitcoind-metrics-exporter
+          AMD64_BIN=$(find dist -type f -name bitcoind-metrics-exporter -path '*linux_amd64*' | head -n1)
+          ARM64_BIN=$(find dist -type f -name bitcoind-metrics-exporter -path '*linux_arm64*' | head -n1)
+          cp "$AMD64_BIN" ./bitcoind-metrics-exporter.amd64
+          cp "$ARM64_BIN" ./bitcoind-metrics-exporter.arm64
+          buildah build --arch amd64 --build-arg TARGET_BINARY=bitcoind-metrics-exporter.amd64 -t "$IMG:nightly-amd64" -f Containerfile .
+          buildah build --arch arm64 --variant v8 --build-arg TARGET_BINARY=bitcoind-metrics-exporter.arm64 -t "$IMG:nightly-arm64v8" -f Containerfile .
+          buildah push "$IMG:nightly-amd64"
+          buildah push "$IMG:nightly-arm64v8"
+          buildah manifest create "$IMG:nightly"
+          buildah manifest add "$IMG:nightly" "docker://$IMG:nightly-amd64"
+          buildah manifest add "$IMG:nightly" "docker://$IMG:nightly-arm64v8"
+          buildah manifest push --all "$IMG:nightly" "docker://$IMG:nightly"
